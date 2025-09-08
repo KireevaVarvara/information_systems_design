@@ -1,12 +1,15 @@
 import re
 
 class Client_short_info:
-    def __init__(self, firstname, surname, fathers_name, email):
+    def __init__(self, id, firstname, surname, fathers_name, email):
+        self.set_id(id)
         self.set_firstname(firstname)
         self.set_surname(surname)
         self.set_fathers_name(fathers_name)
         self.set_email(email)
 
+    def set_id(self, id):
+        self._id = self.__validate_id(id)
     def set_firstname(self, firstname):
         self._firstname = self.__validate_fio(firstname)
     def set_surname(self, surname):
@@ -16,6 +19,8 @@ class Client_short_info:
     def set_email(self, email):
         self._email = self.__validate_email(email)
 
+    def get_id(self):
+        return self._id
     def get_firstname(self):
         return self._firstname
     def get_surname(self):
@@ -24,6 +29,12 @@ class Client_short_info:
         return self._fathers_name
     def get_email(self):
         return self._email
+
+    @staticmethod
+    def __validate_id(id):
+        if not isinstance(id, int) or not id > 0:
+            raise ValueError('Неверный id.')
+        return id
 
     @staticmethod
     def __validate_fio(fio_field, is_fathers_name=False):
@@ -42,14 +53,12 @@ class Client_short_info:
         return email
 
     def __eq__(self, other):
-        if any((
-                self.get_firstname() != other.get_firstname(),
-                self.get_surname() != other.get_surname(),
-                self.get_fathers_name() != other.get_fathers_name(),
-                self.get_email() != other.get_email(),
-        )):
+        if self.get_email() != other.get_email():
             return False
         return True
 
+    def __hash__(self):
+        return hash(self.get_email())
+
     def __str__(self):
-        return f'{self.get_surname} {self.get_firstname}'
+        return f'{self.get_id()} {self.get_surname()} {self.get_firstname()}'
