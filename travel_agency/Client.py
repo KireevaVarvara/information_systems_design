@@ -1,4 +1,5 @@
 import re
+import json
 
 class Client:
     def __init__(self, firstname, surname, fathers_name, phone_number, pasport, email, balance=None):
@@ -76,6 +77,19 @@ class Client:
             if balance < 0:
                 raise ValueError('Баланс не должен быть отрицательным')
         return balance
+
+    @classmethod
+    def from_json(cls, json_str):
+        fields = json.loads(json_str)
+        return cls(
+            firstname=fields['firstname'],
+            surname=fields['surname'],
+            fathers_name=fields['fathers_name'],
+            phone_number=fields['phone_number'],
+            pasport=fields['pasport'],
+            email=fields['email'],
+            balance=fields['balance'],
+        )
 
     def __str__(self):
         return f'{self._surname} {self._firstname}'
