@@ -1,11 +1,10 @@
 import re
 import json
-
 from travel_agency.Client_short_info import Client_short_info
 
 class Client(Client_short_info):
-    def __init__(self, firstname, surname, fathers_name, phone_number, pasport, email, balance=None):
-        super(Client, self).__init__(firstname=firstname, surname=surname, fathers_name=fathers_name, email=email)
+    def __init__(self, id, firstname, surname, fathers_name, phone_number, pasport, email, balance=None):
+        super(Client, self).__init__(id=id, firstname=firstname, surname=surname, fathers_name=fathers_name, email=email)
         self.set_phone_number(phone_number)
         self.set_pasport(pasport)
         self.set_balance(balance)
@@ -49,6 +48,7 @@ class Client(Client_short_info):
     def from_json(cls, json_str):
         fields = json.loads(json_str)
         return cls(
+            id=fields['id'],
             firstname=fields['firstname'],
             surname=fields['surname'],
             fathers_name=fields['fathers_name'],
@@ -61,6 +61,7 @@ class Client(Client_short_info):
     @property
     def full_information(self):
         return (
+            self.get_id(),
             self.get_firstname(),
             self.get_surname(),
             self.get_fathers_name(),
@@ -73,6 +74,7 @@ class Client(Client_short_info):
     @property
     def short_information(self):
         return (
+            self.get_id(),
             self.get_firstname(),
             self.get_surname(),
             self.get_fathers_name(),
