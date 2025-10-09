@@ -8,4 +8,9 @@
 
 ER-модель https://dbdiagram.io/d/68bc1aa261a46d388ebe1ea2
 
+
 Диаграмма классов https://www.mermaidchart.com/app/projects/97cf02b1-3b88-41b3-a4c8-e19c105aebdb/diagrams/c40020d8-9d56-44d9-b7fb-9594acbbfc33/version/v0.1/edit
+
+ЛР2
+Диаграмма классов
+3. https://www.mermaidchart.com/d/c40020d8-9d56-44d9-b7fb-9594acbbfc33
