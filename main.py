@@ -1,22 +1,29 @@
 import json
-from travel_agency.Client import Client
+
+from db_menu_functions import configure_db_connection, work_with_db_repository, work_with_decorated_repository
 from travel_agency.BaseClient import BaseClient
+from travel_agency.Client import Client
 from travel_agency.Client_rep_json import Client_rep_json
 from travel_agency.Client_rep_yaml import Client_rep_yaml
 
+
 def print_separator():
     print("\n" + "=" * 100)
+
 
 def print_section_title(title):
     print_separator()
     print(f"\n{title.upper()}")
     print_separator()
 
+
 def print_success(message):
     print(f"\n✓ {message}")
 
+
 def print_error(message):
     print(f"\n✗ ОШИБКА: {message}")
+
 
 def input_with_prompt(prompt, default=None):
     if default:
@@ -24,6 +31,7 @@ def input_with_prompt(prompt, default=None):
         return value if value else default
     else:
         return input(f"{prompt}: ").strip()
+
 
 def get_continue_choice():
     print_separator()
@@ -34,12 +42,13 @@ def get_continue_choice():
 
     while True:
         choice = input("\nВаш выбор (1-3): ").strip()
-        if choice in ['1', '2', '3']:
+        if choice in ["1", "2", "3"]:
             return choice
         print_error("Неверный выбор. Введите 1, 2 или 3.")
 
+
 def print_client_short(client):
-    birth_date_str = client.get_birth_date().strftime('%d.%m.%Y') if client.get_birth_date() else 'Не указана'
+    birth_date_str = client.get_birth_date().strftime("%d.%m.%Y") if client.get_birth_date() else "Не указана"
     print(f"  ID: {client.get_id()}")
     print(f"  Фамилия: {client.get_surname()}")
     print(f"  Имя: {client.get_firstname()}")
@@ -48,8 +57,9 @@ def print_client_short(client):
     if isinstance(client, Client):
         print(f"  Email: {client.get_email() or 'Не указан'}")
 
+
 def print_client_full(client):
-    birth_date_str = client.get_birth_date().strftime('%d.%m.%Y') if client.get_birth_date() else 'Не указана'
+    birth_date_str = client.get_birth_date().strftime("%d.%m.%Y") if client.get_birth_date() else "Не указана"
     print(f"  ID: {client.get_id()}")
     print(f"  Фамилия: {client.get_surname()}")
     print(f"  Имя: {client.get_firstname()}")
@@ -61,11 +71,13 @@ def print_client_full(client):
         print(f"  Email: {client.get_email() or 'Не указан'}")
         print(f"  Баланс: {client.get_balance() or '0.00'}")
 
+
 def is_client_unique(client, all_clients):
     return not any(existing_client == client for existing_client in all_clients)
 
+
 def is_email_unique(email, all_clients):
-    if not email or email.lower() in ['не указан', 'none']:
+    if not email or email.lower() in ["не указан", "none"]:
         return True
     client_count = 0
     for existing_client in all_clients:
@@ -90,13 +102,14 @@ def delete_client_by_fio_and_birth_date(all_clients):
 
     try:
         from datetime import datetime
-        birth_date = datetime.strptime(birth_date_str, '%d.%m.%Y').date()
+
+        birth_date = datetime.strptime(birth_date_str, "%d.%m.%Y").date()
 
         # Нормализация введенных данных
         surname_norm = surname.lower().strip()
         firstname_norm = firstname.lower().strip()
         fathers_name_norm = fathers_name.lower().strip() if fathers_name else None
-        if fathers_name_norm in ['', 'не указано', 'none']:
+        if fathers_name_norm in ["", "не указано", "none"]:
             fathers_name_norm = None
 
         for i, client in enumerate(all_clients):
@@ -119,9 +132,9 @@ def delete_client_by_fio_and_birth_date(all_clients):
                 fathers_name_match = True
             elif client_fathers_name is not None and fathers_name_norm is not None:
                 fathers_name_match = client_fathers_name == fathers_name_norm
-            elif client_fathers_name == '' and fathers_name_norm is None:
+            elif client_fathers_name == "" and fathers_name_norm is None:
                 fathers_name_match = True
-            elif client_fathers_name is None and fathers_name_norm == '':
+            elif client_fathers_name is None and fathers_name_norm == "":
                 fathers_name_match = True
 
             birth_date_match = client.get_birth_date() == birth_date
@@ -138,6 +151,7 @@ def delete_client_by_fio_and_birth_date(all_clients):
         print_error(f"Ошибка ввода даты: {e}")
         return False
 
+
 def display_clients_list(all_clients):
     if not all_clients:
         print("\nЗа текущий сеанс не было создано ни одного клиента.")
@@ -152,6 +166,7 @@ def display_clients_list(all_clients):
         else:
             print_client_short(client)
 
+
 def get_after_view_choice():
     print_separator()
     print("\nВыберите действие:")
@@ -161,9 +176,10 @@ def get_after_view_choice():
 
     while True:
         choice = input("\nВаш выбор (1-3): ").strip()
-        if choice in ['1', '2', '3']:
+        if choice in ["1", "2", "3"]:
             return choice
         print_error("Неверный выбор. Введите 1, 2 или 3.")
+
 
 def get_after_delete_choice():
     print_separator()
@@ -173,9 +189,10 @@ def get_after_delete_choice():
 
     while True:
         choice = input("\nВаш выбор (1-2): ").strip()
-        if choice in ['1', '2']:
+        if choice in ["1", "2"]:
             return choice
         print_error("Неверный выбор. Введите 1 или 2.")
+
 
 def view_all_clients(all_clients):
     while True:
@@ -184,7 +201,7 @@ def view_all_clients(all_clients):
 
         choice = get_after_view_choice()
 
-        if choice == '1':
+        if choice == "1":
             if not all_clients:
                 print("\nНет клиентов для удаления.")
                 continue
@@ -195,15 +212,16 @@ def view_all_clients(all_clients):
                 display_clients_list(all_clients)
 
                 after_delete_choice = get_after_delete_choice()
-                if after_delete_choice == '1':
+                if after_delete_choice == "1":
                     continue
-                elif after_delete_choice == '2':
-                    return 'menu'
+                elif after_delete_choice == "2":
+                    return "menu"
 
-        elif choice == '2':
-            return 'menu'
-        elif choice == '3':
+        elif choice == "2":
+            return "menu"
+        elif choice == "3":
             continue
+
 
 def get_after_view_choice_simple():
     print_separator()
@@ -212,9 +230,10 @@ def get_after_view_choice_simple():
 
     while True:
         choice = input("\nВаш выбор (1): ").strip()
-        if choice == '1':
+        if choice == "1":
             return choice
         print_error("Неверный выбор. Введите 1.")
+
 
 def get_repository_menu_choice():
     print_separator()
@@ -231,19 +250,20 @@ def get_repository_menu_choice():
 
     while True:
         choice = input("\nВаш выбор (1-9): ").strip()
-        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+        if choice in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             return choice
         print_error("Неверный выбор. Введите число от 1 до 9.")
+
 
 def work_with_repository():
     print_section_title("РАБОТА С JSON РЕПОЗИТОРИЕМ")
 
-    repo = Client_rep_json('clients_data.json')
+    repo = Client_rep_json("clients_data.json")
 
     while True:
         choice = get_repository_menu_choice()
 
-        if choice == '1':
+        if choice == "1":
             # Просмотр всех записей
             print_section_title("ВСЕ ЗАПИСИ ИЗ РЕПОЗИТОРИЯ")
             clients = repo.read_all()
@@ -255,7 +275,7 @@ def work_with_repository():
                     print_client_full(client)
                     print("-" * 80)
 
-        elif choice == '2':
+        elif choice == "2":
             # Получить по ID
             print_section_title("ПОЛУЧЕНИЕ ЗАПИСИ ПО ID")
             try:
@@ -269,7 +289,7 @@ def work_with_repository():
             except ValueError:
                 print_error("ID должен быть числом")
 
-        elif choice == '3':
+        elif choice == "3":
             # Пагинация
             print_section_title("ПОЛУЧЕНИЕ СПИСКА С ПАГИНАЦИЕЙ")
             try:
@@ -282,21 +302,23 @@ def work_with_repository():
                 else:
                     print(f"\nСтраница {k} (по {n} элементов):")
                     for idx, short_info in enumerate(short_list, 1):
-                        print(f"{idx}. ID: {short_info[0]}, {short_info[1]} {short_info[2]}, Email: {short_info[5] or 'Не указан'}")
+                        print(
+                            f"{idx}. ID: {short_info[0]}, {short_info[1]} {short_info[2]}, Email: {short_info[5] or 'Не указан'}"
+                        )
             except ValueError:
                 print_error("k и n должны быть числами")
 
-        elif choice == '4':
+        elif choice == "4":
             # Сортировка
             print_section_title("СОРТИРОВКА ПО EMAIL")
             print("1 - По возрастанию")
             print("2 - По убыванию")
             sort_choice = input("\nВаш выбор (1-2): ").strip()
 
-            if sort_choice == '1':
+            if sort_choice == "1":
                 repo.sort_by_email(reverse=False)
                 print_success("Данные отсортированы по email (по возрастанию)")
-            elif sort_choice == '2':
+            elif sort_choice == "2":
                 repo.sort_by_email(reverse=True)
                 print_success("Данные отсортированы по email (по убыванию)")
             else:
@@ -307,7 +329,7 @@ def work_with_repository():
             for client in repo.read_all():
                 print(f"Email: {client.get_email() or 'Не указан'} - {client.get_surname()} {client.get_firstname()}")
 
-        elif choice == '5':
+        elif choice == "5":
             # Добавление
             print_section_title("ДОБАВЛЕНИЕ НОВОГО КЛИЕНТА")
 
@@ -331,7 +353,7 @@ def work_with_repository():
                     phone_number=phone_number,
                     pasport=pasport,
                     email=email,
-                    balance=balance
+                    balance=balance,
                 )
 
                 added = repo.add_client(new_client)
@@ -344,7 +366,7 @@ def work_with_repository():
             except Exception as e:
                 print_error(f"Ошибка: {e}")
 
-        elif choice == '6':
+        elif choice == "6":
             # Замена
             print_section_title("ЗАМЕНА КЛИЕНТА ПО ID")
 
@@ -379,7 +401,7 @@ def work_with_repository():
                     phone_number=phone_number,
                     pasport=pasport,
                     email=email,
-                    balance=balance
+                    balance=balance,
                 )
 
                 if repo.replace_by_id(client_id, new_client):
@@ -394,7 +416,7 @@ def work_with_repository():
             except Exception as e:
                 print_error(f"Ошибка: {e}")
 
-        elif choice == '7':
+        elif choice == "7":
             # Удаление
             print_section_title("УДАЛЕНИЕ КЛИЕНТА ПО ID")
 
@@ -410,7 +432,7 @@ def work_with_repository():
                 print_client_full(existing)
 
                 confirm = input("\nВы уверены? (да/нет): ").strip().lower()
-                if confirm in ['да', 'yes', 'y']:
+                if confirm in ["да", "yes", "y"]:
                     if repo.delete_by_id(client_id):
                         print_success(f"Клиент с ID {client_id} успешно удален")
                         print(f"Осталось записей: {repo.get_count()}")
@@ -422,15 +444,16 @@ def work_with_repository():
             except ValueError:
                 print_error("ID должен быть числом")
 
-        elif choice == '8':
+        elif choice == "8":
             # Количество записей
             print_section_title("КОЛИЧЕСТВО ЗАПИСЕЙ")
             count = repo.get_count()
             print(f"\nВсего записей в репозитории: {count}")
 
-        elif choice == '9':
+        elif choice == "9":
             # Выход
-            return 'menu'
+            return "menu"
+
 
 def get_yaml_repository_menu_choice():
     print_separator()
@@ -447,19 +470,20 @@ def get_yaml_repository_menu_choice():
 
     while True:
         choice = input("\nВаш выбор (1-9): ").strip()
-        if choice in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+        if choice in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             return choice
         print_error("Неверный выбор. Введите число от 1 до 9.")
+
 
 def work_with_yaml_repository():
     print_section_title("РАБОТА С YAML РЕПОЗИТОРИЕМ")
 
-    repo = Client_rep_yaml('clients_data.yaml')
+    repo = Client_rep_yaml("clients_data.yaml")
 
     while True:
         choice = get_yaml_repository_menu_choice()
 
-        if choice == '1':
+        if choice == "1":
             # Просмотр всех записей
             print_section_title("ВСЕ ЗАПИСИ ИЗ YAML РЕПОЗИТОРИЯ")
             clients = repo.read_all()
@@ -471,7 +495,7 @@ def work_with_yaml_repository():
                     print_client_full(client)
                     print("-" * 80)
 
-        elif choice == '2':
+        elif choice == "2":
             # Получить по ID
             print_section_title("ПОЛУЧЕНИЕ ЗАПИСИ ПО ID")
             try:
@@ -485,7 +509,7 @@ def work_with_yaml_repository():
             except ValueError:
                 print_error("ID должен быть числом")
 
-        elif choice == '3':
+        elif choice == "3":
             # Пагинация
             print_section_title("ПОЛУЧЕНИЕ СПИСКА С ПАГИНАЦИЕЙ")
             try:
@@ -498,21 +522,23 @@ def work_with_yaml_repository():
                 else:
                     print(f"\nСтраница {k} (по {n} элементов):")
                     for idx, short_info in enumerate(short_list, 1):
-                        print(f"{idx}. ID: {short_info[0]}, {short_info[1]} {short_info[2]}, Email: {short_info[5] or 'Не указан'}")
+                        print(
+                            f"{idx}. ID: {short_info[0]}, {short_info[1]} {short_info[2]}, Email: {short_info[5] or 'Не указан'}"
+                        )
             except ValueError:
                 print_error("k и n должны быть числами")
 
-        elif choice == '4':
+        elif choice == "4":
             # Сортировка
             print_section_title("СОРТИРОВКА ПО ФАМИЛИИ")
             print("1 - По возрастанию")
             print("2 - По убыванию")
             sort_choice = input("\nВаш выбор (1-2): ").strip()
 
-            if sort_choice == '1':
+            if sort_choice == "1":
                 repo.sort_by_surname(reverse=False)
                 print_success("Данные отсортированы по фамилии (по возрастанию)")
-            elif sort_choice == '2':
+            elif sort_choice == "2":
                 repo.sort_by_surname(reverse=True)
                 print_success("Данные отсортированы по фамилии (по убыванию)")
             else:
@@ -523,7 +549,7 @@ def work_with_yaml_repository():
             for client in repo.read_all():
                 print(f"{client.get_surname()} {client.get_firstname()} - Email: {client.get_email() or 'Не указан'}")
 
-        elif choice == '5':
+        elif choice == "5":
             # Добавление
             print_section_title("ДОБАВЛЕНИЕ НОВОГО КЛИЕНТА")
 
@@ -547,7 +573,7 @@ def work_with_yaml_repository():
                     phone_number=phone_number,
                     pasport=pasport,
                     email=email,
-                    balance=balance
+                    balance=balance,
                 )
 
                 added = repo.add_client(new_client)
@@ -560,7 +586,7 @@ def work_with_yaml_repository():
             except Exception as e:
                 print_error(f"Ошибка: {e}")
 
-        elif choice == '6':
+        elif choice == "6":
             # Замена
             print_section_title("ЗАМЕНА КЛИЕНТА ПО ID")
 
@@ -595,7 +621,7 @@ def work_with_yaml_repository():
                     phone_number=phone_number,
                     pasport=pasport,
                     email=email,
-                    balance=balance
+                    balance=balance,
                 )
 
                 if repo.replace_by_id(client_id, new_client):
@@ -610,7 +636,7 @@ def work_with_yaml_repository():
             except Exception as e:
                 print_error(f"Ошибка: {e}")
 
-        elif choice == '7':
+        elif choice == "7":
             # Удаление
             print_section_title("УДАЛЕНИЕ КЛИЕНТА ПО ID")
 
@@ -626,7 +652,7 @@ def work_with_yaml_repository():
                 print_client_full(existing)
 
                 confirm = input("\nВы уверены? (да/нет): ").strip().lower()
-                if confirm in ['да', 'yes', 'y']:
+                if confirm in ["да", "yes", "y"]:
                     if repo.delete_by_id(client_id):
                         print_success(f"Клиент с ID {client_id} успешно удален")
                         print(f"Осталось записей: {repo.get_count()}")
@@ -638,15 +664,16 @@ def work_with_yaml_repository():
             except ValueError:
                 print_error("ID должен быть числом")
 
-        elif choice == '8':
+        elif choice == "8":
             # Количество записей
             print_section_title("КОЛИЧЕСТВО ЗАПИСЕЙ")
             count = repo.get_count()
             print(f"\nВсего записей в репозитории: {count}")
 
-        elif choice == '9':
+        elif choice == "9":
             # Выход
-            return 'menu'
+            return "menu"
+
 
 def create_client_short_info_manual(all_clients):
     print_section_title("СОЗДАНИЕ КЛИЕНТА (КРАТКАЯ ИНФОРМАЦИЯ)")
@@ -660,26 +687,25 @@ def create_client_short_info_manual(all_clients):
         print("Введите данные или '0' для завершения:")
 
         surname = input_with_prompt("Фамилия")
-        if surname == '0':
+        if surname == "0":
             break
 
         firstname = input_with_prompt("Имя")
-        if firstname == '0':
+        if firstname == "0":
             break
 
         fathers_name = input_with_prompt("Отчество")
-        if fathers_name == '0':
+        if fathers_name == "0":
             break
-        fathers_name = None if fathers_name.lower() in ['не указано', 'none'] else fathers_name
+        fathers_name = None if fathers_name.lower() in ["не указано", "none"] else fathers_name
 
         birth_date = input_with_prompt("Дата рождения (ДД.ММ.ГГГГ)")
-        if birth_date == '0':
+        if birth_date == "0":
             break
-        birth_date = None if birth_date.lower() in ['не указано', 'none'] else birth_date
+        birth_date = None if birth_date.lower() in ["не указано", "none"] else birth_date
 
         try:
-            client = BaseClient(surname=surname, firstname=firstname,
-                                fathers_name=fathers_name, birth_date=birth_date)
+            client = BaseClient(surname=surname, firstname=firstname, fathers_name=fathers_name, birth_date=birth_date)
 
             if not is_client_unique(client, all_clients):
                 print_error("Клиент с такими ФИО и датой рождения уже существует!")
@@ -699,16 +725,17 @@ def create_client_short_info_manual(all_clients):
             continue
 
         choice = get_continue_choice()
-        if choice == '1':
+        if choice == "1":
             continue
-        elif choice == '2':
-            return clients, 'change_mode'
-        elif choice == '3':
+        elif choice == "2":
+            return clients, "change_mode"
+        elif choice == "3":
             result = view_all_clients(all_clients)
-            if result == 'menu':
-                return clients, 'change_mode'
+            if result == "menu":
+                return clients, "change_mode"
 
-    return clients, 'continue'
+    return clients, "continue"
+
 
 def create_client_full_manual(all_clients):
     print_section_title("СОЗДАНИЕ КЛИЕНТА (ПОЛНАЯ ИНФОРМАЦИЯ)")
@@ -722,51 +749,58 @@ def create_client_full_manual(all_clients):
         print("Введите данные или '0' для завершения:")
 
         surname = input_with_prompt("Фамилия")
-        if surname == '0':
+        if surname == "0":
             break
 
         firstname = input_with_prompt("Имя")
-        if firstname == '0':
+        if firstname == "0":
             break
 
         fathers_name = input_with_prompt("Отчество")
-        if fathers_name == '0':
+        if fathers_name == "0":
             break
-        fathers_name = None if fathers_name.lower() in ['не указано', 'none'] else fathers_name
+        fathers_name = None if fathers_name.lower() in ["не указано", "none"] else fathers_name
 
         birth_date = input_with_prompt("Дата рождения (ДД.ММ.ГГГГ)")
-        if birth_date == '0':
+        if birth_date == "0":
             break
-        birth_date = None if birth_date.lower() in ['не указано', 'none'] else birth_date
+        birth_date = None if birth_date.lower() in ["не указано", "none"] else birth_date
 
         phone_number = input_with_prompt("Номер телефона")
-        if phone_number == '0':
+        if phone_number == "0":
             break
 
         pasport = input_with_prompt("Паспортные данные (XXXX XXXXXX)")
-        if pasport == '0':
+        if pasport == "0":
             break
 
         email = input_with_prompt("Email")
-        if email == '0':
+        if email == "0":
             break
-        email = None if email.lower() in ['не указан', 'none'] else email
+        email = None if email.lower() in ["не указан", "none"] else email
 
         if email and not is_email_unique(email, all_clients):
             print_error("Клиент с таким email уже существует!")
             continue
 
         balance_input = input_with_prompt("Баланс")
-        if balance_input == '0':
+        if balance_input == "0":
             break
-        balance = None if balance_input.lower() in ['не указано', 'none'] else balance_input
+        balance = None if balance_input.lower() in ["не указано", "none"] else balance_input
 
         try:
-            balance_value = float(balance) if balance and balance.lower() not in ['не указано', 'none'] else None
+            balance_value = float(balance) if balance and balance.lower() not in ["не указано", "none"] else None
 
-            client = Client(surname=surname, firstname=firstname, fathers_name=fathers_name,
-                            birth_date=birth_date, phone_number=phone_number, pasport=pasport,
-                            email=email, balance=balance_value)
+            client = Client(
+                surname=surname,
+                firstname=firstname,
+                fathers_name=fathers_name,
+                birth_date=birth_date,
+                phone_number=phone_number,
+                pasport=pasport,
+                email=email,
+                balance=balance_value,
+            )
 
             if not is_client_unique(client, all_clients):
                 print_error("Клиент с такими ФИО и датой рождения уже существует!")
@@ -786,23 +820,24 @@ def create_client_full_manual(all_clients):
             continue
 
         choice = get_continue_choice()
-        if choice == '1':
+        if choice == "1":
             continue
-        elif choice == '2':
-            return clients, 'change_mode'
-        elif choice == '3':
+        elif choice == "2":
+            return clients, "change_mode"
+        elif choice == "3":
             result = view_all_clients(all_clients)
-            if result == 'menu':
-                return clients, 'change_mode'
+            if result == "menu":
+                return clients, "change_mode"
 
-    return clients, 'continue'
+    return clients, "continue"
+
 
 def json_conversion_test(all_clients):
     print_section_title("ТЕСТИРОВАНИЕ JSON КОНВЕРТАЦИИ")
 
     if not all_clients:
         print("Нет клиентов для тестирования JSON конвертации.")
-        return 'continue'
+        return "continue"
 
     print("Выберите клиента для тестирования JSON конвертации:")
     for i, client in enumerate(all_clients, 1):
@@ -814,30 +849,32 @@ def json_conversion_test(all_clients):
         choice = int(input("\nВведите номер клиента: ")) - 1
         if choice < 0 or choice >= len(all_clients):
             print_error("Неверный выбор клиента.")
-            return 'continue'
+            return "continue"
     except ValueError:
         print_error("Введите корректный номер.")
-        return 'continue'
+        return "continue"
 
     client = all_clients[choice]
 
     try:
-        birth_date_str = client.get_birth_date().strftime('%d.%m.%Y') if client.get_birth_date() else None
+        birth_date_str = client.get_birth_date().strftime("%d.%m.%Y") if client.get_birth_date() else None
         json_data = {
-            'id': client.get_id(),
-            'surname': client.get_surname(),
-            'firstname': client.get_firstname(),
-            'fathers_name': client.get_fathers_name(),
-            'birth_date': birth_date_str,
+            "id": client.get_id(),
+            "surname": client.get_surname(),
+            "firstname": client.get_firstname(),
+            "fathers_name": client.get_fathers_name(),
+            "birth_date": birth_date_str,
         }
 
         if isinstance(client, Client):
-            json_data.update({
-                'phone_number': client.get_phone_number(),
-                'pasport': client.get_pasport(),
-                'email': client.get_email(),
-                'balance': client.get_balance()
-            })
+            json_data.update(
+                {
+                    "phone_number": client.get_phone_number(),
+                    "pasport": client.get_pasport(),
+                    "email": client.get_email(),
+                    "balance": client.get_balance(),
+                }
+            )
 
         json_str = json.dumps(json_data, ensure_ascii=False, indent=2)
 
@@ -866,10 +903,10 @@ def json_conversion_test(all_clients):
 
     return get_after_view_choice_simple()
 
+
 def string_conversion_manual(all_clients):
     print_section_title("ТЕСТИРОВАНИЕ FROM_STRING МЕТОДА")
 
-    total_clients = 0
     clients_created = []
 
     print("\nФормат данных: surname,firstname,fathers_name,birth_date,phone_number,pasport,email,balance")
@@ -879,7 +916,7 @@ def string_conversion_manual(all_clients):
     while True:
         print_separator()
         string_input = input("\nВведите строку с данными (или '0' для выхода): ").strip()
-        if string_input == '0':
+        if string_input == "0":
             break
 
         if not string_input:
@@ -909,16 +946,17 @@ def string_conversion_manual(all_clients):
             print_error(f"Неожиданная ошибка: {e}")
 
         choice = get_continue_choice()
-        if choice == '1':
+        if choice == "1":
             continue
-        elif choice == '2':
-            return 'change_mode'
-        elif choice == '3':
+        elif choice == "2":
+            return "change_mode"
+        elif choice == "3":
             result = view_all_clients(all_clients)
-            if result == 'menu':
-                return 'change_mode'
+            if result == "menu":
+                return "change_mode"
 
-    return 'continue'
+    return "continue"
+
 
 def get_main_menu_choice():
     print_separator()
@@ -930,12 +968,15 @@ def get_main_menu_choice():
     print("5. Просмотр всех созданных клиентов за сеанс")
     print("6. Работа с JSON репозиторием (Client_rep_json)")
     print("7. Работа с YAML репозиторием (Client_rep_yaml)")
+    print("8. Работа с PostgreSQL БД (Client_rep_DB)")
+    print("9. Работа с декорированным репозиторием (фильтры и сортировка)")
 
     while True:
-        choice = input("\nВаш выбор (1-7): ").strip()
-        if choice in ['1', '2', '3', '4', '5', '6', '7']:
+        choice = input("\nВаш выбор (1-9): ").strip()
+        if choice in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             return choice
-        print_error("Неверный выбор. Введите число от 1 до 7.")
+        print_error("Неверный выбор. Введите число от 1 до 9.")
+
 
 def main():
     print_section_title("ПРОГРАММА ДЛЯ ТЕСТИРОВАНИЯ КЛАССОВ ТУРИСТИЧЕСКОЙ КОМПАНИИ")
@@ -946,52 +987,66 @@ def main():
     while True:
         choice = get_main_menu_choice()
 
-        if choice == '1':
+        if choice == "1":
             clients, status = create_client_short_info_manual(all_clients)
             if clients:
                 print(f"\nИтого создано клиентов: {len(clients)}")
                 for i, client in enumerate(clients, 1):
                     birth_info = f", {client.get_birth_date().strftime('%d.%m.%Y')}" if client.get_birth_date() else ""
                     print(f"{i}. {client.get_surname()} {client.get_firstname()}{birth_info} (ID: {client.get_id()})")
-            if status == 'change_mode':
+            if status == "change_mode":
                 continue
 
-        elif choice == '2':
+        elif choice == "2":
             clients, status = create_client_full_manual(all_clients)
             if clients:
                 print(f"\nИтого создано клиентов: {len(clients)}")
                 for i, client in enumerate(clients, 1):
                     birth_info = f", {client.get_birth_date().strftime('%d.%m.%Y')}" if client.get_birth_date() else ""
                     print(f"{i}. {client.get_surname()} {client.get_firstname()}{birth_info} (ID: {client.get_id()})")
-            if status == 'change_mode':
+            if status == "change_mode":
                 continue
 
-        elif choice == '3':
+        elif choice == "3":
             status = string_conversion_manual(all_clients)
-            if status == 'change_mode':
+            if status == "change_mode":
                 continue
 
-        elif choice == '4':
+        elif choice == "4":
             status = json_conversion_test(all_clients)
-            if status == '1':
+            if status == "1":
                 continue
 
-        elif choice == '5':
+        elif choice == "5":
             result = view_all_clients(all_clients)
-            if result == 'menu':
+            if result == "menu":
                 continue
 
-        elif choice == '6':
+        elif choice == "6":
             status = work_with_repository()
-            if status == 'menu':
+            if status == "menu":
                 continue
 
-        elif choice == '7':
+        elif choice == "7":
             status = work_with_yaml_repository()
-            if status == 'menu':
+            if status == "menu":
+                continue
+
+        elif choice == "8":
+            # Настройка и работа с БД
+            if configure_db_connection():
+                status = work_with_db_repository()
+                if status == "menu":
+                    continue
+
+        elif choice == "9":
+            # Работа с декорированным репозиторием
+            status = work_with_decorated_repository()
+            if status == "menu":
                 continue
 
     print_section_title("РАБОТА ПРОГРАММЫ ЗАВЕРШЕНА")
+
 
 if __name__ == "__main__":
     main()

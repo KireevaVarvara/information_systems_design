@@ -14,3 +14,5 @@ ER-модель https://dbdiagram.io/d/68bc1aa261a46d388ebe1ea2
 ЛР2
 Диаграмма классов
 3. https://www.mermaidchart.com/d/c40020d8-9d56-44d9-b7fb-9594acbbfc33
+
+4. 6) https://www.mermaidchart.com/d/08b5849e-7276-4a6f-a6e2-6c55eaffffc4

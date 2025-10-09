@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
+
 from travel_agency.Client import Client
 
 
@@ -59,13 +60,14 @@ class Client_rep_base(ABC):
         """
         f. Добавить объект в список (при добавлении сформировать новый ID)
         """
+
         if self._clients:
             max_id = max(c.get_id() for c in self._clients)
             new_id = max_id + 1
         else:
             new_id = 1
 
-        birth_date_str = client.get_birth_date().strftime('%d.%m.%Y') if client.get_birth_date() else None
+        birth_date_str = client.get_birth_date().strftime("%d.%m.%Y") if client.get_birth_date() else None
 
         new_client = Client(
             id=new_id,
@@ -76,7 +78,7 @@ class Client_rep_base(ABC):
             phone_number=client.get_phone_number(),
             pasport=client.get_pasport(),
             email=client.get_email(),
-            balance=client.get_balance()
+            balance=client.get_balance(),
         )
 
         self._clients.append(new_client)
@@ -90,7 +92,9 @@ class Client_rep_base(ABC):
         for i, client in enumerate(self._clients):
             if client.get_id() == client_id:
                 # Создаем нового клиента с сохранением ID
-                birth_date_str = new_client.get_birth_date().strftime('%d.%m.%Y') if new_client.get_birth_date() else None
+                birth_date_str = (
+                    new_client.get_birth_date().strftime("%d.%m.%Y") if new_client.get_birth_date() else None
+                )
 
                 updated_client = Client(
                     id=client_id,
@@ -101,7 +105,7 @@ class Client_rep_base(ABC):
                     phone_number=new_client.get_phone_number(),
                     pasport=new_client.get_pasport(),
                     email=new_client.get_email(),
-                    balance=new_client.get_balance()
+                    balance=new_client.get_balance(),
                 )
 
                 self._clients[i] = updated_client
