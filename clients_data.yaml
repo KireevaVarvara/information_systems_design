@@ -1,0 +1,28 @@
+- id: 1
+  surname: Кузнецов
+  firstname: Александр
+  fathers_name: Петрович
+  birth_date: 12.01.1987
+  phone_number: +7 926 123-45-67
+  pasport: 4510 123456
+  email: kuznetsov@mail.ru
+  balance: 15000.0
+- id: 2
+  surname: Волкова
+  firstname: Екатерина
+  fathers_name: Сергеевна
+  birth_date: 23.06.1991
+  phone_number: +7 926 234-56-78
+  pasport: 4511 234567
+  email: volkova@mail.ru
+  balance: 20000.0
+- id: 3
+  surname: Лебедев
+  firstname: Максим
+  fathers_name: Игоревич
+  birth_date: 05.11.1989
+  phone_number: +7 926 345-67-89
+  pasport: 4512 345678
+  email: lebedev@mail.ru
+  balance: 18500.0
+
