@@ -45,6 +45,20 @@ class ClientController(RepositoryObserver):
             if surname_prefix:
                 decorated.add_filter(SurnameFilter(surname_prefix))
 
+            sorter = filters.get("sort")
+            if sorter == "surname_asc":
+                decorated.set_sorter(ClientSorter.by_surname(False))
+            elif sorter == "surname_desc":
+                decorated.set_sorter(ClientSorter.by_surname(True))
+            elif sorter == "balance_asc":
+                decorated.set_sorter(ClientSorter.by_balance(False))
+            elif sorter == "balance_desc":
+                decorated.set_sorter(ClientSorter.by_balance(True))
+            elif sorter == "email_asc":
+                decorated.set_sorter(ClientSorter.by_email(False))
+            elif sorter == "email_desc":
+                decorated.set_sorter(ClientSorter.by_email(True))
+
             clients = decorated.read_all()
         else:
             self.repository.read_all()

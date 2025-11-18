@@ -47,6 +47,18 @@
             Фамилия начинается с
             <input type="text" name="surname_prefix" placeholder="Ив" />
           </label>
+          <label>
+            Сортировка
+            <select name="sort">
+              <option value="">Нет</option>
+              <option value="surname_asc">Фамилия ↑</option>
+              <option value="surname_desc">Фамилия ↓</option>
+              <option value="balance_asc">Баланс ↑</option>
+              <option value="balance_desc">Баланс ↓</option>
+              <option value="email_asc">Email ↑</option>
+              <option value="email_desc">Email ↓</option>
+            </select>
+          </label>
           <div class="actions">
             <button class="btn" type="submit">Применить фильтр</button>
             <button class="btn secondary" type="button" id="reset-filters">Сбросить</button>

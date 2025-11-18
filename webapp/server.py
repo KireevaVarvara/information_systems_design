@@ -74,6 +74,7 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
         max_balance = to_float(params.get("max_balance", [None])[0])
         has_email_param = params.get("has_email", [None])[0]
         surname_prefix = params.get("surname_prefix", [None])[0]
+        sort_param = params.get("sort", [None])[0]
 
         if min_balance is not None:
             filters["min_balance"] = min_balance
@@ -83,6 +84,8 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
             filters["has_email"] = has_email_param.lower() == "true"
         if surname_prefix:
             filters["surname_prefix"] = surname_prefix
+        if sort_param:
+            filters["sort"] = sort_param
 
         clients = self.controller.get_clients_overview(filters if filters else None)
         self._json_response(200, clients)
