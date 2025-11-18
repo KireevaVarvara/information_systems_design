@@ -121,6 +121,15 @@ tr:hover {
   box-shadow: none;
 }
 
+.btn.danger {
+  background: #ef4444;
+  color: #0b1720;
+}
+
+.btn.danger:hover {
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.25);
+}
+
 .message {
   margin-bottom: 12px;
   padding: 10px 12px;

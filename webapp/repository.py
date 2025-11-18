@@ -31,3 +31,9 @@ class ObservableClientRepository(ObservableRepositoryMixin, Client_rep_DB_adapte
         reloaded = super().get_by_id(client_id)
         self._notify("client_updated", reloaded)
         return reloaded
+
+    def delete_client(self, client_id: Any) -> bool:
+        deleted = super().delete_by_id(client_id)
+        if deleted:
+            self._notify("client_deleted", client_id)
+        return deleted

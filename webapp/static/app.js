@@ -33,10 +33,12 @@ const renderRow = (client) => {
     <td>${client.birth_date || "—"}</td>
     <td><button class="btn" data-action="details" data-client-id="${client.id}">Подробнее</button></td>
     <td><button class="btn secondary" data-action="edit" data-client-id="${client.id}">Редактировать</button></td>
+    <td><button class="btn danger" data-action="delete" data-client-id="${client.id}">Удалить</button></td>
   `;
 
   row.querySelector('button[data-action="details"]').addEventListener("click", () => openDetails(client.id));
   row.querySelector('button[data-action="edit"]').addEventListener("click", () => openForm("edit", client.id));
+  row.querySelector('button[data-action="delete"]').addEventListener("click", () => deleteClient(client.id));
   tableBody.appendChild(row);
 };
 
@@ -71,3 +73,20 @@ window.addEventListener("message", (event) => {
     loadClients();
   }
 });
+
+const deleteClient = async (id) => {
+  const confirmed = confirm("Удалить клиента?");
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Не удалось удалить клиента");
+    }
+    showMessage("Клиент удален");
+    loadClients();
+  } catch (error) {
+    showMessage(error.message, true);
+  }
+};

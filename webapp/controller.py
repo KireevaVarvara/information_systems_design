@@ -122,3 +122,24 @@ class ClientUpdateController(RepositoryObserver):
             raise ValueError("Клиент не найден")
         reloaded = self._last_payload.get("client_updated", updated)
         return ClientController._full_dto(reloaded)
+
+
+class ClientDeleteController(RepositoryObserver):
+    """
+    Контроллер для удаления клиента.
+    """
+
+    def __init__(self, repository: ObservableClientRepository):
+        self.repository = repository
+        self.repository.subscribe(self)
+        self._last_payload: Dict[str, Any] = {}
+
+    def update(self, event: str, payload: Any) -> None:
+        self._last_payload[event] = payload
+
+    def delete_client(self, client_id: Any) -> bool:
+        self._last_payload.pop("client_deleted", None)
+        deleted = self.repository.delete_client(client_id)
+        if not deleted:
+            raise ValueError("Клиент не найден")
+        return True
