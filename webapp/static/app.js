@@ -16,8 +16,11 @@ const openDetails = (id) => {
   window.open(`client.html?id=${id}`, "_blank", "noopener");
 };
 
-const openEdit = (id) => {
-  window.open(`edit_client.html?id=${id}`, "_blank", "width=600,height=700");
+const openForm = (mode, id) => {
+  const params = new URLSearchParams();
+  params.set("mode", mode);
+  if (id) params.set("id", id);
+  window.open(`client_form.html?${params.toString()}`, "_blank", "width=600,height=700");
 };
 
 const renderRow = (client) => {
@@ -33,7 +36,7 @@ const renderRow = (client) => {
   `;
 
   row.querySelector('button[data-action="details"]').addEventListener("click", () => openDetails(client.id));
-  row.querySelector('button[data-action="edit"]').addEventListener("click", () => openEdit(client.id));
+  row.querySelector('button[data-action="edit"]').addEventListener("click", () => openForm("edit", client.id));
   tableBody.appendChild(row);
 };
 
@@ -61,11 +64,7 @@ const loadClients = async () => {
 
 document.addEventListener("DOMContentLoaded", loadClients);
 
-const openCreateWindow = () => {
-  window.open("new_client.html", "_blank", "width=600,height=700");
-};
-
-createBtn.addEventListener("click", openCreateWindow);
+createBtn.addEventListener("click", () => openForm("create"));
 
 window.addEventListener("message", (event) => {
   if (event.data === "client-added" || event.data === "client-updated") {

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Клиент</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="client_form.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1 id="page-title">Клиент</h1>
+      <p class="muted">Одно окно: создание или редактирование в зависимости от режима.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="card-header">
+          <h2 id="form-title">Форма клиента</h2>
+          <a class="link" href="index.html" target="_blank" rel="noopener">Главное окно</a>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+
+        <form id="client-form" class="form-grid">
+          <label>
+            Фамилия*
+            <input type="text" name="surname" required />
+          </label>
+          <label>
+            Имя*
+            <input type="text" name="firstname" required />
+          </label>
+          <label>
+            Отчество
+            <input type="text" name="fathers_name" />
+          </label>
+          <label>
+            Дата рождения* (ДД.ММ.ГГГГ)
+            <input type="text" name="birth_date" placeholder="15.05.1990" required />
+          </label>
+          <label>
+            Телефон
+            <input type="text" name="phone_number" placeholder="+79990000000" />
+          </label>
+          <label>
+            Паспорт
+            <input type="text" name="pasport" placeholder="1234 567890" />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" />
+          </label>
+          <label>
+            Баланс
+            <input type="number" name="balance" step="0.01" min="0" />
+          </label>
+
+          <div class="actions">
+            <button class="btn" type="submit">Сохранить</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
