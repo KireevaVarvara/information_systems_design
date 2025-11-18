@@ -1,6 +1,8 @@
 const messageBox = document.getElementById("message");
 const tableBody = document.querySelector("#clients-table tbody");
 const createBtn = document.getElementById("create-btn");
+const filterForm = document.getElementById("filter-form");
+const resetFiltersBtn = document.getElementById("reset-filters");
 
 const showMessage = (text, isError = false) => {
   messageBox.textContent = text;
@@ -42,12 +44,30 @@ const renderRow = (client) => {
   tableBody.appendChild(row);
 };
 
+const getFilters = () => {
+  const data = new FormData(filterForm);
+  const params = new URLSearchParams();
+  const minBalance = data.get("min_balance");
+  const maxBalance = data.get("max_balance");
+  const hasEmail = data.get("has_email");
+  const surnamePrefix = data.get("surname_prefix");
+
+  if (minBalance) params.set("min_balance", minBalance);
+  if (maxBalance) params.set("max_balance", maxBalance);
+  if (hasEmail) params.set("has_email", hasEmail);
+  if (surnamePrefix) params.set("surname_prefix", surnamePrefix.trim());
+
+  return params.toString();
+};
+
 const loadClients = async () => {
   hideMessage();
   tableBody.innerHTML = "";
 
   try {
-    const response = await fetch("/api/clients");
+    const query = getFilters();
+    const url = query ? `/api/clients?${query}` : "/api/clients";
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Не удалось загрузить список клиентов");
     }
@@ -72,6 +92,16 @@ window.addEventListener("message", (event) => {
   if (event.data === "client-added" || event.data === "client-updated") {
     loadClients();
   }
+});
+
+filterForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  loadClients();
+});
+
+resetFiltersBtn.addEventListener("click", () => {
+  filterForm.reset();
+  loadClients();
 });
 
 const deleteClient = async (id) => {

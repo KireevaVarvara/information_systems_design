@@ -1,6 +1,12 @@
 from typing import Any, Dict, List, Optional
 
 from travel_agency.Client import Client
+from travel_agency.Client_rep_decorator import (
+    BalanceFilter,
+    Client_rep_decorator,
+    EmailFilter,
+    SurnameFilter,
+)
 
 from .observer import RepositoryObserver
 from .repository import ObservableClientRepository
@@ -20,11 +26,30 @@ class ClientController(RepositoryObserver):
     def update(self, event: str, payload: Any) -> None:
         self._last_payload[event] = payload
 
-    def get_clients_overview(self) -> List[Dict[str, Any]]:
-        """Возвращает краткую информацию о клиентах для таблицы."""
+    def get_clients_overview(self, filters: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
+        """Возвращает краткую информацию о клиентах для таблицы с фильтрацией."""
         self._last_payload.pop("clients_loaded", None)
-        self.repository.read_all()
-        clients: List[Client] = self._last_payload.get("clients_loaded", [])
+
+        if filters:
+            decorated = Client_rep_decorator(self.repository)
+            min_balance = filters.get("min_balance")
+            max_balance = filters.get("max_balance")
+            if min_balance is not None or max_balance is not None:
+                decorated.add_filter(BalanceFilter(min_balance, max_balance))
+
+            has_email = filters.get("has_email")
+            if has_email is not None:
+                decorated.add_filter(EmailFilter(has_email))
+
+            surname_prefix = filters.get("surname_prefix")
+            if surname_prefix:
+                decorated.add_filter(SurnameFilter(surname_prefix))
+
+            clients = decorated.read_all()
+        else:
+            self.repository.read_all()
+            clients = self._last_payload.get("clients_loaded", [])
+
         return [self._short_dto(client) for client in clients]
 
     def get_client_details(self, client_id: Any) -> Optional[Dict[str, Any]]:

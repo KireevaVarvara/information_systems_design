@@ -60,7 +60,31 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
         return self._json_response(404, {"error": "Endpoint not found"})
 
     def _send_clients(self):
-        clients = self.controller.get_clients_overview()
+        parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        filters = {}
+
+        def to_float(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        min_balance = to_float(params.get("min_balance", [None])[0])
+        max_balance = to_float(params.get("max_balance", [None])[0])
+        has_email_param = params.get("has_email", [None])[0]
+        surname_prefix = params.get("surname_prefix", [None])[0]
+
+        if min_balance is not None:
+            filters["min_balance"] = min_balance
+        if max_balance is not None:
+            filters["max_balance"] = max_balance
+        if has_email_param is not None:
+            filters["has_email"] = has_email_param.lower() == "true"
+        if surname_prefix:
+            filters["surname_prefix"] = surname_prefix
+
+        clients = self.controller.get_clients_overview(filters if filters else None)
         self._json_response(200, clients)
 
     def _send_client_details(self, path: str):
