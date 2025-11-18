@@ -87,3 +87,38 @@ class ClientCreateController(RepositoryObserver):
         created = self.repository.add_client(client)
         registered = self._last_payload.get("client_added", created)
         return ClientController._full_dto(registered)
+
+
+class ClientUpdateController(RepositoryObserver):
+    """
+    Отдельный контроллер для окна редактирования клиента.
+    """
+
+    def __init__(self, repository: ObservableClientRepository):
+        self.repository = repository
+        self.repository.subscribe(self)
+        self._last_payload: Dict[str, Any] = {}
+
+    def update(self, event: str, payload: Any) -> None:
+        self._last_payload[event] = payload
+
+    def load_client(self, client_id: Any) -> Optional[Dict[str, Any]]:
+        self._last_payload.pop("client_loaded", None)
+        self.repository.get_by_id(client_id)
+        client: Optional[Client] = self._last_payload.get("client_loaded")
+        if client is None:
+            return None
+        return ClientController._full_dto(client)
+
+    def update_client(self, client_id: Any, payload: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            client = Client(**payload)
+        except Exception as error:
+            raise ValueError(str(error))
+
+        self._last_payload.pop("client_updated", None)
+        updated = self.repository.update_client(client_id, client)
+        if updated is None:
+            raise ValueError("Клиент не найден")
+        reloaded = self._last_payload.get("client_updated", updated)
+        return ClientController._full_dto(reloaded)

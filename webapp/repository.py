@@ -23,3 +23,11 @@ class ObservableClientRepository(ObservableRepositoryMixin, Client_rep_DB_adapte
         created = super().add_client(client)
         self._notify("client_added", created)
         return created
+
+    def update_client(self, client_id: Any, client: Client) -> Optional[Client]:
+        updated = super().replace_by_id(client_id, client)
+        if not updated:
+            return None
+        reloaded = super().get_by_id(client_id)
+        self._notify("client_updated", reloaded)
+        return reloaded

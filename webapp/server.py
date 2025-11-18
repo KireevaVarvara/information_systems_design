@@ -5,7 +5,7 @@ from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from typing import Tuple
 
-from .controller import ClientController, ClientCreateController
+from .controller import ClientController, ClientCreateController, ClientUpdateController
 from .repository import ObservableClientRepository
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -16,9 +16,17 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
     Обработчик HTTP-запросов. Ставит API поверх контроллера и раздает статику.
     """
 
-    def __init__(self, *args, controller: ClientController, create_controller: ClientCreateController, **kwargs):
+    def __init__(
+        self,
+        *args,
+        controller: ClientController,
+        create_controller: ClientCreateController,
+        update_controller: ClientUpdateController,
+        **kwargs,
+    ):
         self.controller = controller
         self.create_controller = create_controller
+        self.update_controller = update_controller
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
 
     def do_GET(self):  # noqa: N802
@@ -35,6 +43,12 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/api/clients":
             return self._create_client()
+        return self._json_response(404, {"error": "Endpoint not found"})
+
+    def do_PUT(self):  # noqa: N802
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path.startswith("/api/clients/"):
+            return self._update_client(parsed.path)
         return self._json_response(404, {"error": "Endpoint not found"})
 
     def _send_clients(self):
@@ -72,6 +86,28 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
         except Exception as error:
             return self._json_response(500, {"error": f"Серверная ошибка: {error}"})
 
+    def _update_client(self, path: str):
+        try:
+            _, _, client_id_str = path.partition("/api/clients/")
+            client_id = int(client_id_str)
+        except ValueError:
+            return self._json_response(400, {"error": "Некорректный идентификатор"})
+
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            return self._json_response(400, {"error": "Некорректный JSON"})
+
+        try:
+            updated = self.update_controller.update_client(client_id, data)
+            return self._json_response(200, updated)
+        except ValueError as error:
+            return self._json_response(400, {"error": str(error)})
+        except Exception as error:
+            return self._json_response(500, {"error": f"Серверная ошибка: {error}"})
+
     def _json_response(self, status: int, payload):
         response = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
@@ -85,14 +121,24 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
         return
 
 
-def build_controllers() -> Tuple[ClientController, ClientCreateController, ObservableClientRepository]:
+def build_controllers() -> Tuple[ClientController, ClientCreateController, ClientUpdateController, ObservableClientRepository]:
     repository = ObservableClientRepository()
-    return ClientController(repository), ClientCreateController(repository), repository
+    return (
+        ClientController(repository),
+        ClientCreateController(repository),
+        ClientUpdateController(repository),
+        repository,
+    )
 
 
-def run_server(host: str = "127.0.0.1", port: int = 8000) -> Tuple[str, int]:
-    read_controller, create_controller, _ = build_controllers()
-    handler = partial(ClientRequestHandler, controller=read_controller, create_controller=create_controller)
+def run_server(host: str = "127.0.0.1", port: int = 8008) -> Tuple[str, int]:
+    read_controller, create_controller, update_controller, _ = build_controllers()
+    handler = partial(
+        ClientRequestHandler,
+        controller=read_controller,
+        create_controller=create_controller,
+        update_controller=update_controller,
+    )
     httpd = HTTPServer((host, port), handler)
     print(f"Веб-приложение запущено: http://{host}:{port}")
     print("Главная страница: /index.html, детальная: /client.html?id=1")

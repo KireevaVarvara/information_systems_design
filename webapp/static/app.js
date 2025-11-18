@@ -16,6 +16,10 @@ const openDetails = (id) => {
   window.open(`client.html?id=${id}`, "_blank", "noopener");
 };
 
+const openEdit = (id) => {
+  window.open(`edit_client.html?id=${id}`, "_blank", "width=600,height=700");
+};
+
 const renderRow = (client) => {
   const row = document.createElement("tr");
   row.innerHTML = `
@@ -24,10 +28,12 @@ const renderRow = (client) => {
     <td>${client.firstname}</td>
     <td>${client.email || "—"}</td>
     <td>${client.birth_date || "—"}</td>
-    <td><button class="btn" data-client-id="${client.id}">Подробнее</button></td>
+    <td><button class="btn" data-action="details" data-client-id="${client.id}">Подробнее</button></td>
+    <td><button class="btn secondary" data-action="edit" data-client-id="${client.id}">Редактировать</button></td>
   `;
 
-  row.querySelector("button").addEventListener("click", () => openDetails(client.id));
+  row.querySelector('button[data-action="details"]').addEventListener("click", () => openDetails(client.id));
+  row.querySelector('button[data-action="edit"]').addEventListener("click", () => openEdit(client.id));
   tableBody.appendChild(row);
 };
 
@@ -56,13 +62,13 @@ const loadClients = async () => {
 document.addEventListener("DOMContentLoaded", loadClients);
 
 const openCreateWindow = () => {
-  window.open("new_client.html", "_blank", "noopener,width=600,height=700");
+  window.open("new_client.html", "_blank", "width=600,height=700");
 };
 
 createBtn.addEventListener("click", openCreateWindow);
 
 window.addEventListener("message", (event) => {
-  if (event.data === "client-added") {
+  if (event.data === "client-added" || event.data === "client-updated") {
     loadClients();
   }
 });

@@ -109,6 +109,18 @@ tr:hover {
   box-shadow: 0 10px 25px rgba(34, 211, 238, 0.25);
 }
 
+.btn.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn.secondary:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
 .message {
   margin-bottom: 12px;
   padding: 10px 12px;
