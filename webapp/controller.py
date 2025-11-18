@@ -61,3 +61,29 @@ class ClientController(RepositoryObserver):
             "email": client.get_email(),
             "balance": client.get_balance(),
         }
+
+
+class ClientCreateController(RepositoryObserver):
+    """
+    Отдельный контроллер для окна создания клиента.
+    Подписан на репозиторий и валидирует входные данные через доменную модель.
+    """
+
+    def __init__(self, repository: ObservableClientRepository):
+        self.repository = repository
+        self.repository.subscribe(self)
+        self._last_payload: Dict[str, Any] = {}
+
+    def update(self, event: str, payload: Any) -> None:
+        self._last_payload[event] = payload
+
+    def create_client(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            client = Client(**payload)
+        except Exception as error:
+            raise ValueError(str(error))
+
+        self._last_payload.pop("client_added", None)
+        created = self.repository.add_client(client)
+        registered = self._last_payload.get("client_added", created)
+        return ClientController._full_dto(registered)

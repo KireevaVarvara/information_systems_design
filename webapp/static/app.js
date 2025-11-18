@@ -54,3 +54,15 @@ const loadClients = async () => {
 };
 
 document.addEventListener("DOMContentLoaded", loadClients);
+
+const openCreateWindow = () => {
+  window.open("new_client.html", "_blank", "noopener,width=600,height=700");
+};
+
+createBtn.addEventListener("click", openCreateWindow);
+
+window.addEventListener("message", (event) => {
+  if (event.data === "client-added") {
+    loadClients();
+  }
+});

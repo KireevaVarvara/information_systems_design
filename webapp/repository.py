@@ -18,3 +18,8 @@ class ObservableClientRepository(ObservableRepositoryMixin, Client_rep_DB_adapte
         client = super().get_by_id(client_id)
         self._notify("client_loaded", client)
         return client
+
+    def add_client(self, client: Client) -> Client:
+        created = super().add_client(client)
+        self._notify("client_added", created)
+        return created

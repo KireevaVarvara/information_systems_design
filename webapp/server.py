@@ -31,6 +31,12 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
             self.path = "/index.html"
         return super().do_GET()
 
+    def do_POST(self):  # noqa: N802
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == "/api/clients":
+            return self._create_client()
+        return self._json_response(404, {"error": "Endpoint not found"})
+
     def _send_clients(self):
         clients = self.controller.get_clients_overview()
         self._json_response(200, clients)
@@ -50,6 +56,21 @@ class ClientRequestHandler(SimpleHTTPRequestHandler):
 
         self._json_response(200, client)
 
+    def _create_client(self):
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            return self._json_response(400, {"error": "Некорректный JSON"})
+
+        try:
+            created = self.create_controller.create_client(data)
+            return self._json_response(201, created)
+        except ValueError as error:
+            return self._json_response(400, {"error": str(error)})
+        except Exception as error:
+            return self._json_response(500, {"error": f"Серверная ошибка: {error}"})
 
     def _json_response(self, status: int, payload):
         response = json.dumps(payload, ensure_ascii=False).encode("utf-8")
