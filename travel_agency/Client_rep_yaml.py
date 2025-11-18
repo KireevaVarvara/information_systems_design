@@ -7,6 +7,12 @@ from travel_agency.Client_rep_base import Client_rep_base
 
 
 class Client_rep_yaml(Client_rep_base):
+    """
+    Класс для работы с данными клиентов в формате YAML.
+    Обеспечивает чтение, запись, поиск, сортировку и управление объектами Client.
+    Наследуется от Client_rep_base.
+    """
+
     def _load_from_file(self):
         """Чтение всех значений из файла"""
         if os.path.exists(self.file_path):
@@ -65,5 +71,8 @@ class Client_rep_yaml(Client_rep_base):
     def sort_by_surname(self, reverse: bool = False):
         """
         e. Сортировать элементы по выбранному полю (surname/фамилия)
+
+        Args:
+            reverse: Если True, сортировка в обратном порядке
         """
         self._clients.sort(key=lambda client: client.get_surname() if client.get_surname() else "", reverse=reverse)

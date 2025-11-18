@@ -1,3 +1,9 @@
+-- SQL скрипт для создания и наполнения базы данных PostgreSQL
+-- Система управления клиентами туристической компании
+
+-- Удаление таблицы если существует
+DROP TABLE IF EXISTS clients CASCADE;
+
 -- Создание таблицы clients
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
@@ -53,3 +59,7 @@ INSERT INTO clients (surname, firstname, fathers_name, birth_date, phone_number,
 ('Королева', 'Полина', 'Сергеевна', '1991-04-30', '+7 951 890-12-34', '4537 890123', 'koroleva@mail.ru', 14900.00),
 ('Семенов', 'Константин', 'Викторович', '1986-12-05', '+7 952 901-23-45', '4538 901234', 'semenov@mail.ru', 23000.00),
 ('Ковалева', 'Валерия', 'Андреевна', '1994-08-14', '+7 953 012-34-56', '4539 012345', 'kovaleva@mail.ru', 10200.00);
+
+-- Проверка данных
+SELECT COUNT(*) as total_clients FROM clients;
+SELECT * FROM clients ORDER BY id LIMIT 5;

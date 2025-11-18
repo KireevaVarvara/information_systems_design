@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Клиенты турагентства</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Клиенты турагентства</h1>
+      <p>Главная страница показывает краткую информацию (Read).</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Список клиентов</h2>
+            <p class="muted">Данные приходят из PostgreSQL через контроллер и адаптер.</p>
+          </div>
+          <div class="legend">
+            <span class="dot"></span>
+            <span class="muted">«Подробнее» открывает отдельную вкладку.</span>
+          </div>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+
+        <div class="table-wrapper">
+          <table id="clients-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Дата рождения</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

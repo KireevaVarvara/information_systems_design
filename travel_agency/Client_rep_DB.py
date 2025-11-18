@@ -5,6 +5,11 @@ from travel_agency.DBConnection import DBConnection
 
 
 class Client_rep_DB:
+    """
+    Класс для работы с данными клиентов в PostgreSQL базе данных.
+    Использует паттерн Одиночка (Singleton) для подключения к БД через DBConnection.
+    """
+
     def __init__(self):
         """Инициализация репозитория с подключением к БД"""
         self.db = DBConnection()
@@ -12,7 +17,14 @@ class Client_rep_DB:
     def _row_to_client(self, row: tuple) -> Client:
         """
         Преобразование строки из БД в объект Client
+
+        Args:
+            row: Кортеж с данными из БД
+
+        Returns:
+            Объект Client
         """
+        # row format: (id, surname, firstname, fathers_name, birth_date, phone_number, pasport, email, balance, ...)
         birth_date_str = row[4].strftime("%d.%m.%Y") if row[4] else None
 
         return Client(
@@ -30,6 +42,12 @@ class Client_rep_DB:
     def get_by_id(self, client_id: int) -> Optional[Client]:
         """
         a. Получить объект по ID
+
+        Args:
+            client_id: ID клиента
+
+        Returns:
+            Объект Client или None
         """
         query = """
             SELECT id, surname, firstname, fathers_name, birth_date,
@@ -50,6 +68,13 @@ class Client_rep_DB:
     def get_k_n_short_list(self, k: int, n: int) -> List[tuple]:
         """
         b. Получить список k по счету n объектов класса short
+
+        Args:
+            k: Номер страницы (начиная с 1)
+            n: Количество элементов на странице
+
+        Returns:
+            Список кортежей с краткой информацией
         """
         offset = (k - 1) * n
 
@@ -76,6 +101,12 @@ class Client_rep_DB:
     def add_client(self, client: Client) -> Optional[Client]:
         """
         c. Добавить объект в список (ID генерируется автоматически БД)
+
+        Args:
+            client: Объект Client
+
+        Returns:
+            Добавленный клиент с новым ID
         """
         query = """
             INSERT INTO clients (surname, firstname, fathers_name, birth_date,
@@ -113,6 +144,13 @@ class Client_rep_DB:
     def replace_by_id(self, client_id: int, new_client: Client) -> bool:
         """
         d. Заменить элемент списка по ID
+
+        Args:
+            client_id: ID клиента для замены
+            new_client: Новый объект Client
+
+        Returns:
+            True если замена успешна
         """
         query = """
             UPDATE clients
@@ -148,6 +186,12 @@ class Client_rep_DB:
     def delete_by_id(self, client_id: int) -> bool:
         """
         e. Удалить элемент списка по ID
+
+        Args:
+            client_id: ID клиента
+
+        Returns:
+            True если удаление успешно
         """
         query = "DELETE FROM clients WHERE id = %s"
 
@@ -161,6 +205,9 @@ class Client_rep_DB:
     def get_count(self) -> int:
         """
         f. Получить количество элементов
+
+        Returns:
+            Количество клиентов
         """
         query = "SELECT COUNT(*) FROM clients"
 
@@ -174,6 +221,9 @@ class Client_rep_DB:
     def read_all(self) -> List[Client]:
         """
         Получить все записи из БД
+
+        Returns:
+            Список всех клиентов
         """
         query = """
             SELECT id, surname, firstname, fathers_name, birth_date,

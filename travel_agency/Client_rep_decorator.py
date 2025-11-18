@@ -53,23 +53,31 @@ class SurnameFilter(ClientFilter):
         return [c for c in clients if c.get_surname().lower().startswith(self.starts_with)]
 
 
+class SortStrategy:
+    """Стратегия сортировки с ключом и направлением"""
+
+    def __init__(self, key_func: Callable, reverse: bool = False):
+        self.key_func = key_func
+        self.reverse = reverse
+
+
 class ClientSorter:
     """Класс для сортировки клиентов"""
 
     @staticmethod
-    def by_surname(reverse: bool = False) -> Callable:
+    def by_surname(reverse: bool = False) -> SortStrategy:
         """Сортировка по фамилии"""
-        return lambda c: (c.get_surname() or "", reverse)
+        return SortStrategy(lambda c: c.get_surname() or "", reverse)
 
     @staticmethod
-    def by_balance(reverse: bool = False) -> Callable:
+    def by_balance(reverse: bool = False) -> SortStrategy:
         """Сортировка по балансу"""
-        return lambda c: (c.get_balance() or 0, reverse)
+        return SortStrategy(lambda c: c.get_balance() or 0, reverse)
 
     @staticmethod
-    def by_email(reverse: bool = False) -> Callable:
+    def by_email(reverse: bool = False) -> SortStrategy:
         """Сортировка по email"""
-        return lambda c: (c.get_email() or "", reverse)
+        return SortStrategy(lambda c: c.get_email() or "", reverse)
 
 
 class Client_rep_decorator(Client_rep_base):
@@ -81,18 +89,21 @@ class Client_rep_decorator(Client_rep_base):
     def __init__(self, repository: Client_rep_base):
         """
         Инициализация декоратора
+
+        Args:
+            repository: Репозиторий для декорирования
         """
         self._repository = repository
         self.file_path = repository.file_path
         self._clients = []
         self._filters: List[ClientFilter] = []
-        self._sorter: Optional[Callable] = None
+        self._sorter: Optional[SortStrategy] = None
 
     def add_filter(self, filter: ClientFilter):
         """Добавить фильтр"""
         self._filters.append(filter)
 
-    def set_sorter(self, sorter: Callable):
+    def set_sorter(self, sorter: SortStrategy):
         """Установить способ сортировки"""
         self._sorter = sorter
 
@@ -108,13 +119,13 @@ class Client_rep_decorator(Client_rep_base):
         """Применить фильтры и сортировку"""
         result = clients
 
+        # Применение фильтров
         for filter in self._filters:
             result = filter.apply(result)
 
+        # Применение сортировки
         if self._sorter:
-            key_func = self._sorter
-            reverse = key_func(None)[1] if callable(key_func) else False
-            result = sorted(result, key=lambda c: key_func(c)[0], reverse=reverse)
+            result = sorted(result, key=self._sorter.key_func, reverse=self._sorter.reverse)
 
         return result
 
@@ -122,6 +133,10 @@ class Client_rep_decorator(Client_rep_base):
         """Делегирование загрузки декорируемому объекту"""
         self._repository._load_from_file()
         self._clients = self._repository._clients
+
+    def reload_from_file(self):
+        """Делегирование перезагрузки декорируемому объекту"""
+        self._repository.reload_from_file()
 
     def write_all(self):
         """Делегирование записи декорируемому объекту"""
@@ -143,6 +158,13 @@ class Client_rep_decorator(Client_rep_base):
     def get_k_n_short_list(self, k: int, n: int) -> List[tuple]:
         """
         Получить список с пагинацией с учетом фильтров и сортировки
+
+        Args:
+            k: Номер страницы
+            n: Количество элементов
+
+        Returns:
+            Список кортежей
         """
         # Получаем все записи
         all_clients = self._repository.read_all()

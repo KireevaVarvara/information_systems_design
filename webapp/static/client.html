@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Детали клиента</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="client.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Полная информация о клиенте</h1>
+      <p class="muted">Страница открывается в отдельной вкладке.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="card-header">
+          <h2 id="client-name">Клиент</h2>
+          <a class="link" href="index.html" target="_self">← Назад к списку</a>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+
+        <dl id="client-details" class="details-grid"></dl>
+      </section>
+    </main>
+  </body>
+</html>

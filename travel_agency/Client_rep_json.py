@@ -6,6 +6,12 @@ from travel_agency.Client_rep_base import Client_rep_base
 
 
 class Client_rep_json(Client_rep_base):
+    """
+    Класс для работы с данными клиентов в формате JSON.
+    Обеспечивает чтение, запись, поиск, сортировку и управление объектами Client.
+    Наследуется от Client_rep_base.
+    """
+
     def _load_from_file(self):
         """Чтение всех значений из файла"""
         if os.path.exists(self.file_path):
@@ -46,5 +52,8 @@ class Client_rep_json(Client_rep_base):
     def sort_by_email(self, reverse: bool = False):
         """
         e. Сортировать элементы по выбранному полю (email)
+
+        Args:
+            reverse: Если True, сортировка в обратном порядке
         """
         self._clients.sort(key=lambda client: client.get_email() if client.get_email() else "", reverse=reverse)
